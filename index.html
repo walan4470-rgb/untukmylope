@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Semesta 3D Untukmu | Tata Surya Romantis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #000000;
+            overflow: hidden;
+            color: white;
+            touch-action: none;
+        }
+
+        /* LOADING SCREEN */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #0a0015, #000000);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            transition: opacity 0.8s ease;
+        }
+
+        .galaxy-loader {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff3366, #ff6633, #aa33ff, #ff3366);
+            animation: spinLoad 1.5s infinite linear;
+            box-shadow: 0 0 30px #ff3366;
+        }
+
+        @keyframes spinLoad {
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff99cc, #ff6699, #cc66ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .loading-status {
+            font-size: 0.85rem;
+            color: #ffaacc;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 250px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff6699, #ff3366);
+            transition: width 0.3s ease;
+        }
+
+        /* INTRO SCREEN */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1.5rem;
+            background: radial-gradient(ellipse at 30% 40%, #0e001f, #000000);
+            z-index: 100;
+            transition: opacity 1s ease;
+        }
+
+        .quote-container {
+            background: rgba(20, 5, 40, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            padding: 1.8rem;
+            max-width: 320px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 100, 150, 0.4);
+            box-shadow: 0 0 40px rgba(255, 51, 102, 0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quote-text {
+            font-size: 1.3rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #ffe6f0;
+            text-shadow: 0 0 8px #ff3366;
+        }
+
+        .glow-button {
+            margin-top: 2rem;
+            background: linear-gradient(95deg, #ff3366, #ff6699);
+            border: none;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 20px #ff3366;
+            transition: transform 0.2s, box-shadow 0.3s;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .glow-button:active { transform: scale(0.96); }
+
+        #canvas3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .info-panel {
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            pointer-events: none;
+        }
+
+        .music-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 8px 14px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            border: 1px solid #ff6699;
+            pointer-events: auto;
+        }
+
+        .music-float button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .proud-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 51, 102, 0.3);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 8px 16px;
+            border: 1px solid #ff88aa;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+            cursor: pointer;
+            font-size: 0.85rem;
+            pointer-events: auto;
+        }
+
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .modal-card {
+            background: rgba(20, 10, 45, 0.95);
+            border-radius: 60px;
+            padding: 25px;
+            text-align: center;
+            width: 85%;
+            max-width: 300px;
+            border: 1px solid #ff6699;
+            box-shadow: 0 0 50px #ff3366;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #ff88aa;
+        }
+
+        .modal-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #ff99cc, #ffccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .modal-caption {
+            font-size: 0.95rem;
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .close-modal-btn {
+            background: #ff3366;
+            border: none;
+            margin-top: 20px;
+            padding: 10px 25px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .sparkle-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 3000;
+            font-size: 20px;
+            animation: sparkleAnim 0.6s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { opacity: 1; transform: scale(0.5); }
+            100% { opacity: 0; transform: scale(1.5) translateY(-30px); }
+        }
+
+        @keyframes fallMeteor {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(180px) translateY(320px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="galaxy-loader"></div>
+    <div class="loading-text">✨ Menyusun galaksi 3D untukmu ✨</div>
+    <div class="progress-bar"><div class="progress-fill" id="loadFill"></div></div>
+    <div class="loading-status" id="loadStatus">Menyiapkan semesta spesial...</div>
+</div>
+
+<!-- INTRO SCREEN -->
+<div id="introScreen" class="intro-screen">
+    <div class="quote-container">
+        <div class="quote-text" id="dynamicQuote">"Kalau laptopmu rusak, bukan berarti semua perjuanganmu ikut hilang. Aku tetap percaya sama kamu, sama mimpi-mimpi kamu."</div>
+    </div>
+    <button class="glow-button" id="openSolarBtn">✨ Buka Semestaku 3D ❤️</button>
+</div>
+
+<!-- UI OVERLAY -->
+<div class="ui-overlay">
+    <div class="info-panel">✨ Sentuh planet (foto) untuk melihat kenangan | Geser untuk lihat sekitar ✨</div>
+</div>
+
+<!-- MUSIC CONTROL -->
+<div class="music-float">
+    <button id="playMusicBtn"><i class="fas fa-play"></i></button>
+    <button id="pauseMusicBtn"><i class="fas fa-pause"></i></button>
+</div>
+
+<!-- PROUD BUTTON -->
+<div class="proud-button" id="proudBtn">
+    🤍 Aku Bangga Sama Kamu 🤍
+</div>
+
+<!-- MODAL -->
+<div id="photoModal" class="photo-modal">
+    <div class="modal-card">
+        <img id="modalPhoto" class="modal-img" alt="kenangan">
+        <div id="modalNickname" class="modal-name">Sayangku</div>
+        <div id="modalCaptionText" class="modal-caption">Kamu luar biasa</div>
+        <button class="close-modal-btn" id="closeModal">Tutup ✨</button>
+    </div>
+</div>
+
+<!-- 3D CANVAS -->
+<canvas id="canvas3d"></canvas>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+    
+    // ======================== KONFIGURASI 36 FOTO ========================
+    // DAFTAR PATH FOTO (GANTI SESUAI DENGAN NAMA FILE FOTO KAMU)
+    const PHOTO_URLS = [
+        "assets/images/1.jpg", "assets/images/2.jpg", "assets/images/3.jpg",
+        "assets/images/4.jpg", "assets/images/5.jpg", "assets/images/6.jpg",
+        "assets/images/7.jpg", "assets/images/8.jpg", "assets/images/9.jpg",
+        "assets/images/10.jpg", "assets/images/11.jpg", "assets/images/12.jpg",
+        "assets/images/13.jpg", "assets/images/14.jpg", "assets/images/15.jpg",
+        "assets/images/16.jpg", "assets/images/17.jpg", "assets/images/18.jpg",
+        "assets/images/19.jpg", "assets/images/20.jpg", "assets/images/21.jpg",
+        "assets/images/22.jpg", "assets/images/23.jpg", "assets/images/24.jpg",
+        "assets/images/25.jpg", "assets/images/26.jpg", "assets/images/27.jpg",
+        "assets/images/28.jpg", "assets/images/29.jpg", "assets/images/30.jpg",
+        "assets/images/31.jpg", "assets/images/32.jpg", "assets/images/33.jpg",
+        "assets/images/34.jpg", "assets/images/35.jpg", "assets/images/36.jpg"
+    ];
+    
+    // Nama panggilan romantis
+    const NICKNAMES = [
+        "Sayang", "Bebeb", "Cintaku", "My Universe", "Starlight", "Mooncake",
+        "Pacarku", "Code Warrior", "Semestaku", "Galaksi Hatiku", "Cahayaku",
+        "Pelukku", "Bintangku", "Malaikatku", "Baby", "My Love", "Sweetheart",
+        "Darling", "Honey", "Sunshine", "Cupcake", "Panda", "Beruangku",
+        "Pelangi", "Bulan", "Matahariku", "Ratu Hatiku", "Pangeranku",
+        "Cintaku", "Belahan Jiwa", "Teman Hidup", "Inspirasiku", "Segalanya",
+        "My Everything", "Love of My Life"
+    ];
+    
+    // Caption romantis
+    const CAPTIONS = [
+        "Kamu kuat melewati semua error hidup 💻✨", "Laptop boleh rusak, semangatmu nggak boleh padam ❤️",
+        "Aku di sini selalu support kamu 💕", "Make time for rest, coding can wait 💆‍♀️",
+        "Kamu lebih berharga dari source code 🌟", "Your smile is my favorite algorithm 😊",
+        "Setiap bug pasti ada solusinya 🐛", "Kamu terbaik yang pernah ada ✨",
+        "Pelukan virtual untukmu 🤗", "Jangan menyerah, aku percaya! 💪",
+        "Kamu adalah bintang di setiap baris kode ⭐", "Semesta bangga padamu 🌍",
+        "Aku selalu percaya sama kamu 💖", "Kamu lebih kuat dari apapun 🦋",
+        "Hatiku selalu untukmu 💝", "Kamu inspirasiku setiap hari 🌈",
+        "Tetap semangat, aku di sini 🤍", "Codingan baru akan lebih indah 🚀",
+        "Kamu luar biasa setiap harinya ✨", "Aku bangga jadi milikmu 💕",
+        "Terima kasih sudah menjadi kamu 💫", "Hatiku berdetak untukmu 💗",
+        "Kamu adalah rumahku 🏠", "Bersama kamu, semua terasa indah 🌸",
+        "Kamu membuat hidupku berwarna 🎨", "Cintaku padamu tak terbatas 🌌",
+        "Kamu adalah jawaban doaku 🙏", "Setiap hari bersamamu adalah anugerah 🎁",
+        "Kamu membuatku percaya pada cinta 💕", "Terima kasih untuk semuanya ❤️",
+        "Kamu adalah cahayaku di setiap hari ☀️", "Aku akan selalu menjagamu 🛡️",
+        "Kamu pantas mendapatkan yang terbaik 👑", "Cintaku padamu seluas semesta 🌠",
+        "Kamu adalah mimpiku yang jadi nyata 💭", "I love you to the moon and back 🌙"
+    ];
+    
+    const TOTAL_PHOTOS = PHOTO_URLS.length;
+    let photosData = [];
+    let allPhotosReady = false;
+    
+    // Variabel 3D
+    let scene, camera, renderer, controls;
+    let sunMesh;
+    let planets = [];
+    let raycaster, mouse;
+    let bgMusic = null;
+    let musicPlaying = false;
+    let meteorInterval;
+    let sunTapCount = 0;
+    
+    // Konfigurasi orbit (6 orbit, total 36 planet)
+    const orbitsConfig = [
+        { radius: 3.2, count: 5, speed: 0.0030, yOffset: 0, color: 0xff88aa },
+        { radius: 4.6, count: 5, speed: 0.0027, yOffset: 0.12, color: 0xffaacc },
+        { radius: 6.0, count: 6, speed: 0.0024, yOffset: -0.1, color: 0xcc88ff },
+        { radius: 7.5, count: 6, speed: 0.0021, yOffset: 0.15, color: 0x88aaff },
+        { radius: 9.0, count: 7, speed: 0.0018, yOffset: -0.12, color: 0x88ffcc },
+        { radius: 10.5, count: 7, speed: 0.0016, yOffset: 0.1, color: 0xffcc88 }
+    ];
+    
+    // ========== PRELOAD FOTO ==========
+    async function preloadPhotos() {
+        const loadStatus = document.getElementById('loadStatus');
+        const loadFill = document.getElementById('loadFill');
+        
+        for (let i = 0; i < TOTAL_PHOTOS; i++) {
+            if (loadStatus) {
+                loadStatus.innerText = `📸 Menyiapkan foto ${i+1}/${TOTAL_PHOTOS}... ✨`;
+            }
+            if (loadFill) {
+                loadFill.style.width = `${((i+1) / TOTAL_PHOTOS) * 100}%`;
+            }
+            
+            await new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    photosData.push({
+                        id: i + 1,
+                        url: PHOTO_URLS[i],
+                        nickname: NICKNAMES[i % NICKNAMES.length],
+                        caption: CAPTIONS[i % CAPTIONS.length] + ` ✨ kenangan #${i+1}`,
+                        imageElement: img
+                    });
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.log(`Foto ${i+1} tidak ditemukan, pakai placeholder`);
+                    // Buat placeholder canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 256;
+                    canvas.height = 256;
+                    const ctx = canvas.getContext('2d');
+                    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    grad.addColorStop(0, '#ff66aa');
+                    grad.addColorStop(1, '#aa33ff');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 40px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('❤️', canvas.width/2, canvas.height/2);
+                    ctx.font = '20px Arial';
+                    ctx.fillText(`#${i+1}`, canvas.width/2, canvas.height - 40);
+                    
+                    photosData.push({
+                        id: i + 1,
+                        url: PHOTO_URLS[i],
+                        nickname: NICKNAMES[i % NICKNAMES.length],
+                        caption: CAPTIONS[i % CAPTIONS.length] + ` ✨ kenangan #${i+1}`,
+                        imageCanvas: canvas
+                    });
+                    resolve();
+                };
+                img.src = PHOTO_URLS[i];
+            });
+        }
+        
+        if (loadStatus) {
+            loadStatus.innerText = `✅ ${TOTAL_PHOTOS} foto siap! Yuk buka semesta ✨`;
+        }
+        
+        allPhotosReady = true;
+        
+        setTimeout(() => {
+            const loadScreen = document.getElementById('loadingScreen');
+            loadScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadScreen.style.display = 'none';
+            }, 500);
+        }, 500);
+    }
+    
+    // ========== MUSIK ==========
+    function initMusic() {
+        try {
+            bgMusic = new Audio('assets/music/my love.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0.35;
+            bgMusic.onerror = () => {
+                console.log("Music file not found, lanjut tanpa musik");
+            };
+        } catch(e) {}
+    }
+    
+    function playBgMusic() {
+        if (bgMusic && !musicPlaying) {
+            bgMusic.play().catch(() => {});
+            musicPlaying = true;
+            updateMusicButton(true);
+        }
+    }
+    
+    function pauseBgMusic() {
+        if (bgMusic && musicPlaying) {
+            bgMusic.pause();
+            musicPlaying = false;
+            updateMusicButton(false);
+        }
+    }
+    
+    function updateMusicButton(isPlaying) {
+        const playBtn = document.getElementById('playMusicBtn');
+        const pauseBtn = document.getElementById('pauseMusicBtn');
+        if (playBtn && pauseBtn) {
+            playBtn.style.opacity = isPlaying ? '0.5' : '1';
+            pauseBtn.style.opacity = isPlaying ? '1' : '0.5';
+        }
+    }
+    
+    // ========== 3D INIT ==========
+    function init3D() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x010005);
+        scene.fog = new THREE.FogExp2(0x010005, 0.01);
+        
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3, 14);
+        
+        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.rotateSpeed = 0.8;
+        controls.zoomSpeed = 0.8;
+        controls.enableZoom = true;
+        controls.enablePan = false;
+        controls.target.set(0, 0, 0);
+        
+        // Bintang
+        createStars();
+        
+        // Matahari
+        const sunGeometry = new THREE.SphereGeometry(1.2, 64, 64);
+        const sunMaterial = new THREE.MeshStandardMaterial({
+            color: 0xff5500,
+            emissive: 0xff3300,
+            emissiveIntensity: 1.2,
+            metalness: 0.1,
+            roughness: 0.3
+        });
+        sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sunMesh);
+        
+        // Pencahayaan
+        const sunLight = new THREE.PointLight(0xff6644, 1.5, 30);
+        sunLight.position.set(0, 0, 0);
+        scene.add(sunLight);
+        
+        const ambientLight = new THREE.AmbientLight(0x221133);
+        scene.add(ambientLight);
+        
+        const fillLight = new THREE.DirectionalLight(0xffccaa, 0.5);
+        fillLight.position.set(2, 5, 3);
+        scene.add(fillLight);
+        
+        // Corona matahari
+        const sunGlowGeometry = new THREE.SphereGeometry(1.6, 32, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff6644,
+            transparent: true,
+            opacity: 0.12,
+            side: THREE.BackSide
+        });
+        const sunGlow = new THREE.Mesh(sunGlowGeometry, glowMaterial);
+        scene.add(sunGlow);
+        
+        // Pulse animation
+        let pulseDir = 0.008;
+        function animateSun() {
+            if (sunMesh && sunGlow) {
+                let scale = sunMesh.scale.x;
+                if (scale > 1.07) pulseDir = -0.006;
+                if (scale < 0.95) pulseDir = 0.006;
+                sunMesh.scale.setScalar(scale + pulseDir);
+                sunGlow.scale.setScalar(scale + pulseDir);
+            }
+            requestAnimationFrame(animateSun);
+        }
+        animateSun();
+        
+        // Planet
+        createPlanets();
+        
+        // Raycaster
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+        
+        // Events
+        renderer.domElement.addEventListener('click', onCanvasClick);
+        renderer.domElement.addEventListener('touchstart', onTouchStart);
+        
+        // Animasi orbit
+        function animateOrbits() {
+            for (let planet of planets) {
+                planet.angle += planet.speed;
+                const x = Math.cos(planet.angle) * planet.radius;
+                const z = Math.sin(planet.angle) * planet.radius;
+                planet.mesh.position.set(x, planet.yOffset, z);
+                planet.mesh.lookAt(camera.position);
+            }
+            controls.update();
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateOrbits);
+        }
+        animateOrbits();
+        
+        // Orbit lines
+        for (let idx = 0; idx < orbitsConfig.length; idx++) {
+            const config = orbitsConfig[idx];
+            const points = [];
+            for (let i = 0; i <= 100; i++) {
+                const angle = (i / 100) * Math.PI * 2;
+                const x = Math.cos(angle) * config.radius;
+                const z = Math.sin(angle) * config.radius;
+                points.push(new THREE.Vector3(x, config.yOffset || 0, z));
+            }
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: config.color, transparent: true, opacity: 0.25 });
+            const orbitLine = new THREE.LineLoop(geometry, material);
+            scene.add(orbitLine);
+        }
+    }
+    
+    function createStars() {
+        // Bintang kecil
+        const starGeo1 = new THREE.BufferGeometry();
+        const starCount1 = 3000;
+        const starPos1 = new Float32Array(starCount1 * 3);
+        for (let i = 0; i < starCount1; i++) {
+            starPos1[i*3] = (Math.random() - 0.5) * 500;
+            starPos1[i*3+1] = (Math.random() - 0.5) * 300;
+            starPos1[i*3+2] = (Math.random() - 0.5) * 150 - 80;
+        }
+        starGeo1.setAttribute('position', new THREE.BufferAttribute(starPos1, 3));
+        scene.add(new THREE.Points(starGeo1, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1, transparent: true, opacity: 0.6 })));
+        
+        // Bintang berwarna
+        const starGeo2 = new THREE.BufferGeometry();
+        const starCount2 = 1500;
+        const starPos2 = new Float32Array(starCount2 * 3);
+        const starCol2 = new Float32Array(starCount2 * 3);
+        for (let i = 0; i < starCount2; i++) {
+            starPos2[i*3] = (Math.random() - 0.5) * 450;
+            starPos2[i*3+1] = (Math.random() - 0.5) * 250;
+            starPos2[i*3+2] = (Math.random() - 0.5) * 130 - 65;
+            const r = Math.random();
+            if (r < 0.7) {
+                starCol2[i*3] = 1; starCol2[i*3+1] = 1; starCol2[i*3+2] = 1;
+            } else if (r < 0.85) {
+                starCol2[i*3] = 1; starCol2[i*3+1] = 0.7; starCol2[i*3+2] = 0.5;
+            } else {
+                starCol2[i*3] = 0.7; starCol2[i*3+1] = 0.7; starCol2[i*3+2] = 1;
+            }
+        }
+        starGeo2.setAttribute('position', new THREE.BufferAttribute(starPos2, 3));
+        starGeo2.setAttribute('color', new THREE.BufferAttribute(starCol2, 3));
+        scene.add(new THREE.Points(starGeo2, new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.7 })));
+        
+        // Bintang besar
+        const starGeo3 = new THREE.BufferGeometry();
+        const starCount3 = 800;
+        const starPos3 = new Float32Array(starCount3 * 3);
+        for (let i = 0; i < starCount3; i++) {
+            starPos3[i*3] = (Math.random() - 0.5) * 350;
+            starPos3[i*3+1] = (Math.random() - 0.5) * 200;
+            starPos3[i*3+2] = (Math.random() - 0.5) * 100 - 50;
+        }
+        starGeo3.setAttribute('position', new THREE.BufferAttribute(starPos3, 3));
+        scene.add(new THREE.Points(starGeo3, new THREE.PointsMaterial({ color: 0xffdd99, size: 0.22, transparent: true, opacity: 0.8 })));
+    }
+    
+    function createPlanets() {
+        let photoIdx = 0;
+        
+        for (let o = 0; o < orbitsConfig.length; o++) {
+            const config = orbitsConfig[o];
+            for (let p = 0; p < config.count && photoIdx < TOTAL_PHOTOS; p++) {
+                const photo = photosData[photoIdx];
+                const angle = (p / config.count) * Math.PI * 2;
+                
+                let texture;
+                if (photo.imageElement) {
+                    texture = new THREE.CanvasTexture(photo.imageElement);
+                } else if (photo.imageCanvas) {
+                    texture = new THREE.CanvasTexture(photo.imageCanvas);
+                } else {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 256;
+                    canvas.height = 256;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ff88aa';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('❤️', canvas.width/2, canvas.height/2);
+                    texture = new THREE.CanvasTexture(canvas);
+                }
+                
+                const material = new THREE.MeshStandardMaterial({
+                    map: texture,
+                    color: 0xffffff,
+                    emissive: 0x442233,
+                    emissiveIntensity: 0.1,
+                    roughness: 0.4,
+                    metalness: 0.1
+                });
+                
+                const planetMesh = new THREE.Mesh(new THREE.SphereGeometry(0.45, 48, 48), material);
+                planetMesh.position.set(Math.cos(angle) * config.radius, config.yOffset, Math.sin(angle) * config.radius);
+                
+                const ring = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.52, 24, 24),
+                    new THREE.MeshBasicMaterial({ color: 0xff88bb, transparent: true, opacity: 0.15, side: THREE.BackSide })
+                );
+                planetMesh.add(ring);
+                
+                scene.add(planetMesh);
+                
+                planets.push({
+                    mesh: planetMesh,
+                    angle: angle,
+                    radius: config.radius,
+                    speed: config.speed,
+                    yOffset: config.yOffset,
+                    photoData: photo
+                });
+                
+                photoIdx++;
+            }
+        }
+        console.log(`✨ ${planets.length} planet berhasil dibuat ✨`);
+    }
+    
+    // ========== INTERAKSI ==========
+    function onCanvasClick(event) {
+        if (!raycaster || !camera) return;
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        
+        const intersects = raycaster.intersectObjects(planets.map(p => p.mesh));
+        if (intersects.length > 0) {
+            const hit = planets.find(p => p.mesh === intersects[0].object);
+            if (hit) {
+                showModal(hit.photoData);
+                createSparkles(event.clientX, event.clientY);
+                playBeep();
+            }
+        }
+        
+        const sunIntersects = raycaster.intersectObject(sunMesh);
+        if (sunIntersects.length > 0) {
+            sunTapCount++;
+            if (sunTapCount === 5) {
+                alert('🌞💖 Pesan rahasia: Kamu adalah bintang terang di semesta hidupku! 💖🌞');
+                sunTapCount = 0;
+            }
+            playBeep();
+            createSparkles(event.clientX, event.clientY);
+        }
+    }
+    
+    function onTouchStart(e) {
+        e.preventDefault();
+        if (!raycaster || !camera) return;
+        if (e.touches.length === 1) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(planets.map(p => p.mesh));
+            if (intersects.length > 0) {
+                const hit = planets.find(p => p.mesh === intersects[0].object);
+                if (hit) {
+                    showModal(hit.photoData);
+                    createSparkles(e.touches[0].clientX, e.touches[0].clientY);
+                    playBeep();
+                }
+            }
+            
+            const sunIntersects = raycaster.intersectObject(sunMesh);
+            if (sunIntersects.length > 0) {
+                sunTapCount++;
+                if (sunTapCount === 5) {
+                    alert('🌞💖 Pesan rahasia: Kamu adalah bintang terang di semesta hidupku! 💖🌞');
+                    sunTapCount = 0;
+                }
+                playBeep();
+                createSparkles(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }
+    }
+    
+    function showModal(photo) {
+        const modal = document.getElementById('photoModal');
+        const img = document.getElementById('modalPhoto');
+        const name = document.getElementById('modalNickname');
+        const caption = document.getElementById('modalCaptionText');
+        
+        img.src = photo.url;
+        img.onerror = () => {
+            img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%23ff66aa"/%3E%3Ctext x="28" y="65" fill="white" font-size="22"%3E❤️%3C/text%3E%3C/svg%3E';
+        };
+        name.innerText = photo.nickname;
+        caption.innerText = `✨ ${photo.caption} ✨`;
+        modal.style.display = 'flex';
+    }
+    
+    document.getElementById('closeModal')?.addEventListener('click', () => {
+        document.getElementById('photoModal').style.display = 'none';
+    });
+    document.getElementById('photoModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('photoModal')) {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+    });
+    
+    function createSparkles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            let spark = document.createElement('div');
+            spark.innerHTML = '✨';
+            spark.className = 'sparkle-particle';
+            spark.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+            spark.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+            spark.style.fontSize = (Math.random() * 18 + 12) + 'px';
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 500);
+        }
+    }
+    
+    function playBeep() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = 880;
+            gain.gain.value = 0.06;
+            osc.type = 'sine';
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
+            osc.stop(audioCtx.currentTime + 0.15);
+        } catch(e) {}
+    }
+    
+    function startMeteors() {
+        if (meteorInterval) clearInterval(meteorInterval);
+        meteorInterval = setInterval(() => {
+            if (Math.random() < 0.35) {
+                const meteor = document.createElement('div');
+                meteor.style.position = 'fixed';
+                meteor.style.top = '-5px';
+                meteor.style.left = Math.random() * window.innerWidth + 'px';
+                meteor.style.width = '2px';
+                meteor.style.height = '2px';
+                meteor.style.background = 'white';
+                meteor.style.boxShadow = '0 0 6px #ffaa88';
+                meteor.style.borderRadius = '50%';
+                meteor.style.pointerEvents = 'none';
+                meteor.style.zIndex = '50';
+                meteor.style.animation = 'fallMeteor 1s linear forwards';
+                document.body.appendChild(meteor);
+                setTimeout(() => meteor.remove(), 1100);
+            }
+        }, 4000);
+    }
+    
+    // ========== EVENT LISTENERS ==========
+    document.getElementById('openSolarBtn')?.addEventListener('click', () => {
+        const intro = document.getElementById('introScreen');
+        intro.style.opacity = '0';
+        setTimeout(() => {
+            intro.style.display = 'none';
+            if (allPhotosReady) {
+                init3D();
+                startMeteors();
+                playBgMusic();
+                playBeep();
+            } else {
+                const checkReady = setInterval(() => {
+                    if (allPhotosReady) {
+                        clearInterval(checkReady);
+                        init3D();
+                        startMeteors();
+                        playBgMusic();
+                        playBeep();
+                    }
+                }, 100);
+            }
+            
+            setTimeout(() => {
+                let endDiv = document.createElement('div');
+                endDiv.innerText = '✨ Semesta ini luas... tapi aku tetap milih ada di sisi kamu ❤️ ✨';
+                endDiv.style.position = 'fixed';
+                endDiv.style.bottom = '80px';
+                endDiv.style.left = '10%';
+                endDiv.style.width = '80%';
+                endDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                endDiv.style.backdropFilter = 'blur(12px)';
+                endDiv.style.padding = '12px';
+                endDiv.style.borderRadius = '60px';
+                endDiv.style.textAlign = 'center';
+                endDiv.style.zIndex = '200';
+                endDiv.style.border = '1px solid #ff6699';
+                document.body.appendChild(endDiv);
+                setTimeout(() => endDiv.remove(), 7000);
+            }, 5000);
+        }, 1000);
+    });
+    
+    document.getElementById('proudBtn')?.addEventListener('click', () => {
+        for (let i = 0; i < 35; i++) {
+            let star = document.createElement('div');
+            star.innerHTML = '✨';
+            star.style.position = 'fixed';
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = Math.random() * window.innerHeight + 'px';
+            star.style.fontSize = (Math.random() * 22 + 12) + 'px';
+            star.style.pointerEvents = 'none';
+            star.style.zIndex = '4000';
+            star.style.transition = 'all 0.7s ease';
+            document.body.appendChild(star);
+            setTimeout(() => { star.style.opacity = '0'; star.style.transform = 'scale(2)'; }, 20);
+            setTimeout(() => star.remove(), 800);
+        }
+        let msg = document.createElement('div');
+        msg.innerText = '🤍 Kamu hebat karena masih bertahan sejauh ini 🤍';
+        msg.style.position = 'fixed';
+        msg.style.bottom = '30%';
+        msg.style.left = '15%';
+        msg.style.background = 'rgba(0,0,0,0.8)';
+        msg.style.backdropFilter = 'blur(12px)';
+        msg.style.padding = '12px 20px';
+        msg.style.borderRadius = '50px';
+        msg.style.zIndex = '1000';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3500);
+        playBeep();
+    });
+    
+    document.getElementById('playMusicBtn')?.addEventListener('click', playBgMusic);
+    document.getElementById('pauseMusicBtn')?.addEventListener('click', pauseBgMusic);
+    
+    // Quotes bergantian
+    const quotes = [
+        "Kalau laptopmu rusak, bukan berarti semua perjuanganmu ikut hilang. Aku tetap percaya sama kamu!",
+        "Kamu lebih kuat dari semua bug di dunia ini 💪✨",
+        "Setiap kode yang hilang, akan tergantikan dengan semangat baru dariku ❤️",
+        "Aku bangga sama kamu, hari ini, besok, dan selamanya.",
+        "Kamu adalah bintang terang di galaksi hatiku ✨"
+    ];
+    let qIdx = 0;
+    setInterval(() => {
+        const quoteEl = document.getElementById('dynamicQuote');
+        if (quoteEl && document.getElementById('introScreen').style.display !== 'none') {
+            quoteEl.style.opacity = '0';
+            setTimeout(() => {
+                qIdx = (qIdx + 1) % quotes.length;
+                quoteEl.innerText = quotes[qIdx];
+                quoteEl.style.opacity = '1';
+            }, 500);
+        }
+    }, 4500);
+    
+    // START
+    initMusic();
+    preloadPhotos();
+</script>
+</body>
+</html>
